@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Script to run the regression training
+# Author: Lovish Kaushik
+# Description: This script sets up the environment and runs the MOS prediction model training
+
+set -e  
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR"
+
+echo "=========================================="
+echo "Realness Project - Training Script"
+echo "=========================================="
+echo "Project root: $PROJECT_ROOT"
+
+export PROJECT_ROOT="$PROJECT_ROOT"
+export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
+
+if [[ -z "$VIRTUAL_ENV" ]]; then
+    echo "Warning: No virtual environment detected."
+    echo "It's recommended to run this in a virtual environment."
+    echo ""
+fi
+
+if ! command -v python3 &> /dev/null; then
+    echo "Error: python3 is not installed or not in PATH"
+    exit 1
+fi
+
+
+if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
+    echo "Installing dependencies from pyproject.toml..."
+    pip install -e .
+    echo ""
+elif [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then
+    echo "Installing dependencies from requirements.txt..."
+    pip install -r "$PROJECT_ROOT/requirements.txt"
+    echo ""
+else
+    echo "Warning: Neither pyproject.toml nor requirements.txt found."
+    echo "You may need to install dependencies manually."
+    echo ""
+fi
+
+# Create output directory for models if it doesn't exist
+mkdir -p "$PROJECT_ROOT/regression/outputs"
+mkdir -p "$PROJECT_ROOT/regression/models"
+
+echo "=========================================="
+echo "Starting Training..."
+echo "=========================================="
+echo "Training will save outputs to: $PROJECT_ROOT/regression/"
+echo "Logs will be displayed below:"
+echo ""
+
+cd "$PROJECT_ROOT"
+
+echo "Running: python3 -m regression.train"
+echo ""
+
+if python3 -m regression.train; then
+    echo ""
+    echo "=========================================="
+    echo "Training completed successfully!"
+    echo "=========================================="
+    echo "Check the following locations for outputs:"
+    echo "- Model: $PROJECT_ROOT/regression/best_model.pth"
+    echo "- Training curves: $PROJECT_ROOT/regression/training_curves.png"
+    echo ""
+else
+    echo ""
+    echo "=========================================="
+    echo "Training failed!"
+    echo "=========================================="
+    echo "Please check the error messages above."
+    echo ""
+    exit 1
+fi
+
+echo "Script completed successfully!"
