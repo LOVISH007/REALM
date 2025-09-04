@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Realness-Project"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "Dr. Somdyuti Paul", email = "somdyuti@cai.iitkgp.ac.in" },
+    { name = "Lovish Kaushik", email = "lovishkaushik.24@kgpian.iitkgp.ac.in" },
+    { name = "Agnij Biswas", email = "biswasagnij@kgpian.iitkgp.ac.in" }
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "matplotlib",
+    "pillow",
+    "torch",
+    "torchvision",
+    "transformers",
+    "scikit-learn",
+    "scipy",
+    "numpy",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]   
