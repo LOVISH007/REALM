@@ -18,18 +18,36 @@ echo "Project root: $PROJECT_ROOT"
 export PROJECT_ROOT="$PROJECT_ROOT"
 export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
 
-if [[ -z "$VIRTUAL_ENV" ]]; then
-    echo "Warning: No virtual environment detected."
-    echo "It's recommended to run this in a virtual environment."
-    echo ""
-fi
-
 if ! command -v python3 &> /dev/null; then
     echo "Error: python3 is not installed or not in PATH"
     exit 1
 fi
 
+# Handle virtual environment
+VENV_DIR="$PROJECT_ROOT/venv"
 
+if [[ -z "$VIRTUAL_ENV" ]]; then
+    echo "No virtual environment detected."
+    
+    if [[ -d "$VENV_DIR" ]]; then
+        echo "Found existing virtual environment at $VENV_DIR"
+        echo "Activating virtual environment..."
+        source "$VENV_DIR/bin/activate"
+    else
+        echo "Creating new virtual environment at $VENV_DIR..."
+        python3 -m venv "$VENV_DIR"
+        echo "Activating virtual environment..."
+        source "$VENV_DIR/bin/activate"
+        echo "Upgrading pip..."
+        pip install --upgrade pip
+    fi
+    echo ""
+else
+    echo "Using existing virtual environment: $VIRTUAL_ENV"
+    echo ""
+fi
+
+# Install dependencies
 if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
     echo "Installing dependencies from pyproject.toml..."
     pip install -e .
@@ -44,7 +62,7 @@ else
     echo ""
 fi
 
-# Create output directory for models if it doesn't exist
+# Create output directory for models 
 mkdir -p "$PROJECT_ROOT/regression/outputs"
 mkdir -p "$PROJECT_ROOT/regression/models"
 
