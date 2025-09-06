@@ -40,7 +40,7 @@ Realness-Project/
 ├── config.py                 # Configuration settings
 ├── pyproject.toml            # Project dependencies
 ├── train.sh                  # Training script
-└── run_heatmap_analysis.sh   # Heatmap generation script
+└── generate_heatmaps.sh   # Heatmap generation script
 ```
 
 ## 🚀 Quick Start
@@ -95,16 +95,16 @@ Generate heatmaps to visualize which parts of images appear unrealistic:
 
 ```bash
 # Process a single image (default: f22.png)
-./run_heatmap_analysis.sh
+./generate_heatmaps.sh
 
 # Process specific images
-./run_heatmap_analysis.sh f22.png f126.png
+./generate_heatmaps.sh f22.png f126.png
 
 # Process all test images
-./run_heatmap_analysis.sh --all
+./generate_heatmaps.sh --all
 
 # Custom parameters
-./run_heatmap_analysis.sh f22.png --window 128 --stride 64
+./generate_heatmaps.sh f22.png --window 128 --stride 64
 ```
 
 ## 🧠 Model Architecture
@@ -276,58 +276,7 @@ If you use this project in your research, please cite:
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- ResNet-50 architecture from torchvision
-- BERT model from Hugging Face Transformers
-- CLIP model from OpenAI
-- Dataset preparation and annotation contributors
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **CUDA Out of Memory**
-   ```bash
-   # Reduce batch size
-   python3 -m regression.train --batch-size 8
-   ```
-
-2. **Missing Dependencies**
-   ```bash
-   pip install -e .
-   ```
-
-3. **Path Issues**
-   ```bash
-   export PROJECT_ROOT=/path/to/Realness-Project
-   ```
-
-4. **Virtual Environment Issues**
-   ```bash
-   # Recreate virtual environment
-   rm -rf venv
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -e .
-   ```
-
-### Performance Tips
-
-- Use GPU for training (significant speedup)
-- Adjust batch size based on available memory
-- Use smaller stride values for more detailed heatmaps
-- Enable mixed precision training for faster convergence
-
-## 📞 Support
-
-For questions, issues, or contributions:
-- Open an issue on GitHub
-- Contact the authors via email
-- Check the documentation in `/docs` (if available)
-
----
-
-**Happy Research! 🔬✨**
