@@ -10,9 +10,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR"
 
-echo "=========================================="
+echo "===================================================================================="
 echo "Realness Project - Training Script"
-echo "=========================================="
+echo "===================================================================================="
 echo "Project root: $PROJECT_ROOT"
 
 export PROJECT_ROOT="$PROJECT_ROOT"
@@ -66,9 +66,9 @@ fi
 mkdir -p "$PROJECT_ROOT/regression/outputs"
 mkdir -p "$PROJECT_ROOT/regression/models"
 
-echo "=========================================="
+echo "===================================================================================="
 echo "Starting Training..."
-echo "=========================================="
+echo "===================================================================================="
 echo "Training will save outputs to: $PROJECT_ROOT/regression/"
 echo "Logs will be displayed below:"
 echo ""
@@ -80,18 +80,18 @@ echo ""
 
 if python3 -m regression.train; then
     echo ""
-    echo "=========================================="
+    echo "===================================================================================="
     echo "Training completed successfully!"
-    echo "=========================================="
+    echo "===================================================================================="
     echo "Check the following locations for outputs:"
     echo "- Model: $PROJECT_ROOT/regression/best_model.pth"
     echo "- Training curves: $PROJECT_ROOT/regression/training_curves.png"
     echo ""
 else
     echo ""
-    echo "=========================================="
+    echo "===================================================================================="
     echo "Training failed!"
-    echo "=========================================="
+    echo "===================================================================================="
     echo "Please check the error messages above."
     echo ""
     exit 1

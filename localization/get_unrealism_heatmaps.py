@@ -92,7 +92,7 @@ def to_pil_image(np_img: np.ndarray) -> Image.Image:
     return Image.fromarray(np_img)
 
 
-def plot_and_save_heatmap(image: Image, text: str, save_path: str, window_size:int = 64, stride:int = 32) -> np.ndarray:
+def plot_and_save_heatmap(image: Image, text: str, save_path: str, window_size:int = 64, stride:int = 8) -> np.ndarray:
     """Generate and save heatmap overlayed on the original image.
     
     Args:
@@ -118,17 +118,18 @@ def plot_and_save_heatmap(image: Image, text: str, save_path: str, window_size:i
     plt.figure(figsize=(12, 5))
 
     plt.subplot(1, 2, 1)
-    plt.imshow(heatmap_img)
+    plt.imshow(image)
     plt.title("Original Image")
     plt.axis("off")
 
     plt.subplot(1, 2, 2)
-    plt.imshow(heatmap_img)
+    plt.imshow(image)
     plt.imshow(heatmap, cmap='hot', alpha=0.5)
     plt.title("Text Similarity Heatmap")
     plt.axis("off")
 
     plt.tight_layout()
+    plt.show()
     plt.savefig(save_path)
     plt.close()
 
