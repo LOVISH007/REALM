@@ -2,6 +2,8 @@
 
 A comprehensive framework for analyzing and predicting image realism using multimodal deep learning approaches. This project combines computer vision and natural language processing to assess the perceptual realism of images and localize unrealistic regions.
 
+![Realness Maps](./doc_images/Localization_results.png)
+
 ## 🎯 Project Overview
 
 The Realness Project aims to automatically assess image realism through:
