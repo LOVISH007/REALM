@@ -2,8 +2,6 @@
 
 A comprehensive framework for analyzing and predicting image realism using multimodal deep learning approaches. This project combines computer vision and natural language processing to assess the perceptual realism of images and localize unrealistic regions.
 
-![Project Overview](./Images/Annual%20Report%201st%20year%20V1%20(1).png)
-
 ## 🎯 Project Overview
 
 The Realness Project aims to automatically assess image realism through:
@@ -11,39 +9,33 @@ The Realness Project aims to automatically assess image realism through:
 - **Unrealism Localization**: Identifying specific regions in images that appear unrealistic
 - **Multimodal Analysis**: Leveraging both visual features and textual descriptions for comprehensive analysis
 
-## 📊 Results
-
-Our model achieves strong performance in predicting human perception of image realism:
-
-![MOS Prediction Results](./Images/output_medain2_MOS.png)
-
 ## 🏗️ Project Structure
 
 ```
 Realness-Project/
 ├── 📁 datasets/               # Training and test datasets
-│   ├── train/                 # Training data
-│   │   ├── images/           # Training images
-│   │   └── image_descriptions.csv
-│   └── test/                  # Test data
-│       ├── images/           # Test images
-│       └── image_descriptions.csv
+│   ├── 📁 train/              # Training data
+│   │   ├── 📁 images/         # Training images
+│   │   └── 🟩 image_descriptions.csv
+│   └── 📁 test/               # Test data
+│       ├── 📁 images/         # Test images
+│       └── 🟩 image_descriptions.csv
 ├── 📁 regression/             # MOS prediction model
-│   ├── train.py              # Training script
-│   ├── realism_dataset.py    # Dataset class
-│   └── regression_model.py   # Model architecture
+│   ├── 🐍 train.py            # Training script
+│   ├── 🐍 realism_dataset.py  # Dataset class
+│   └── 🐍 regression_model.py # Model architecture
 ├── 📁 localization/           # Unrealism localization
-│   ├── get_unrealism_heatmaps.py
-│   └── run_heatmap_analysis.py
+│   ├── 🐍 get_unrealism_heatmaps.py
+│   └── 🐍 run_heatmap_analysis.py
 ├── 📁 notebooks/             # Jupyter notebooks for experimentation
 ├── 📁 Images/                # Project documentation images
 ├── config.py                 # Configuration settings
 ├── pyproject.toml            # Project dependencies
 ├── train.sh                  # Training script
-└── generate_heatmaps.sh   # Heatmap generation script
+└── generate_heatmaps.sh      # Heatmap generation script
 ```
 
-## 🚀 Quick Start
+## 🚀 How to Use
 
 ### Prerequisites
 
@@ -83,12 +75,6 @@ Or run directly:
 python3 -m regression.train
 ```
 
-**Training Features:**
-- Multimodal architecture combining ResNet-50 and BERT
-- Automatic best model saving based on Spearman correlation
-- Training curve visualization
-- Comprehensive evaluation metrics
-
 ### 🔍 Generating Unrealism Heatmaps
 
 Generate heatmaps to visualize which parts of images appear unrealistic:
@@ -126,24 +112,7 @@ Our multimodal approach combines:
   - Dense layers with ReLU activation
   - Single output for MOS prediction
 
-```python
-class MOSPredictor(nn.Module):
-    def __init__(self, x=529, freeze_cnn=False, freeze_bert=False):
-        super(MOSPredictor, self).__init__()
-        # ResNet-50 for image features
-        self.cnn = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-        self.cnn.fc = nn.Identity()
-        
-        # BERT for text features  
-        self.bert = BertModel.from_pretrained('bert-base-uncased')
-        
-        # Fusion + Regression
-        self.fc = nn.Sequential(
-            nn.Linear(2048 + 768, x),
-            nn.ReLU(),
-            nn.Linear(x, 1)
-        )
-```
+![Regression Model Architecture](./doc_images/Annual%20Report%201st%20year%20V1%20(1).png)
 
 ### Unrealism Localization
 
@@ -152,6 +121,8 @@ Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
 - **Sliding Window**: Processes image patches with configurable window size and stride
 - **Text-Image Similarity**: Computes cosine similarity between patch embeddings and text descriptions
 - **Heatmap Generation**: Aggregates similarity scores to create spatial heatmaps
+
+![Heatmaps localizing unreal regions of an image](./doc_images/output_medain2_MOS.png)
 
 ## 📈 Performance Metrics
 
@@ -246,25 +217,13 @@ Core dependencies:
 - `scipy`
 - `numpy`
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and add tests
-4. Commit your changes: `git commit -am 'Add feature'`
-5. Push to the branch: `git push origin feature-name`
-6. Submit a pull request
 
 ## 📄 Citation
 
 If you use this project in your research, please cite:
 
 ```bibtex
-@misc{realness2024,
-  title={Realness Project: Multimodal Assessment of Image Realism},
-  author={Paul, Somdyuti and Kaushik, Lovish and Biswas, Agnij},
-  year={2024},
-  url={https://github.com/your-repo/realness-project}
+@misc{
 }
 ```
 
