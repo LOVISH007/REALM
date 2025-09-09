@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to run heatmap analysis
-# Author: Realness-Project Team
+# Author: Agnij Biswas 
 # Description: This script runs the heatmap generation for image-text similarity analysis
 
 set -e  # Exit on any error

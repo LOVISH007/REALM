@@ -84,7 +84,7 @@ if python3 -m regression.train; then
     echo "Training completed successfully!"
     echo "===================================================================================="
     echo "Check the following locations for outputs:"
-    echo "- Model: $PROJECT_ROOT/regression/best_model.pth"
+    echo "- Model: $PROJECT_ROOT/regression/outputs/best_model.pth"
     echo "- Training curves: $PROJECT_ROOT/regression/training_curves.png"
     echo ""
 else

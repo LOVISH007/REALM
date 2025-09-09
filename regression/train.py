@@ -11,6 +11,9 @@ from scipy.stats import spearmanr, pearsonr
 import os
 import numpy as np
 from pathlib import Path
+import warnings
+
+warnings.filterwarnings("ignore")
 
 try:
     from config import BASE_DIR
@@ -35,7 +38,7 @@ TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
 TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
 TEST_IMG_PATH = BASE_DIR / "datasets" / "test" / "images"
 TEST_CSV_PATH = BASE_DIR / "datasets" / "test" / "image_descriptions.csv"
-MODEL_SAVE_PATH = BASE_DIR / "regression" / "best_model.pth"
+MODEL_SAVE_PATH = BASE_DIR / "regression" / "outputs" / "best_model.pth"
 
 
 def load_and_prepare_data():
@@ -226,7 +229,7 @@ def main():
     )
     
     # Plot training curves
-    plot_save_path = BASE_DIR / "regression" / "training_curves.png"
+    plot_save_path = BASE_DIR / "regression" / "outputs" / "training_curves.png"
     plot_losses(train_losses, val_losses, save_path=plot_save_path)
     
     # Final evaluation with best model

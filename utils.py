@@ -42,7 +42,7 @@ def validate(model, val_loader, criterion, device):
     return total_loss / len(val_loader)
 
 
-def plot_losses(train_losses, val_losses):
+def plot_losses(train_losses, val_losses, save_path=None):
     plt.figure(figsize=(8, 5))
     plt.plot(train_losses, label="Train Loss", marker='o')
     plt.plot(val_losses, label="Validation Loss", marker='x')
@@ -53,13 +53,13 @@ def plot_losses(train_losses, val_losses):
     plt.grid(True)
     plt.tight_layout()
     
-    filename = "loss_curve_1.png"
-    while os.path.exists(os.path.join(BASE_DIR, filename)):
-        i += 1
-        filename = f"loss_curve_{i}.png"
+    if save_path is None:
+        save_path = os.path.join(BASE_DIR,filename)
+        while os.path.exists(os.path.join(save_path, filename)):
+            i += 1
+            filename = f"loss_curve_{i}.png"
 
-    file_save_path = os.path.join(BASE_DIR, filename)
-    plt.savefig(file_save_path)
-
-
-
+        file_save_path = os.path.join(BASE_DIR, filename)
+        plt.savefig(file_save_path)
+    else:
+        plt.savefig(save_path)
