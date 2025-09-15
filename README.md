@@ -1,44 +1,52 @@
-# Realness Project
+# REALM: REalness Assessment and Localization using Multimodal features
 
-A comprehensive framework for analyzing and predicting image realism using multimodal deep learning approaches. This project combines computer vision and natural language processing to assess the perceptual realism of images and localize unrealistic regions.
+We present **REALM**, a comprehensive framework for analyzing and predicting image realism using multimodal deep learning approaches. This project combines multimodal MOS prediction module (**CORE**) along with a novel approach (**DREAM**) to obtain dense realness mappings to effectively detect unreal patch regions within an image.
 
-![Realness Maps](./doc_images/Localization_results.png)
+## Project Overview
 
-## 🎯 Project Overview
+### Objectives:
+- **Dataset Augmentation**: We augmented existing AIGI datasets with VLM generated natural language descriptions of visual inconsistencies, extractng relevant textual features
+- **Objective Realness Assessment**: We designed *Cross-modal Objective Realness Estimator (CORE)* to use both visual and textual feature to effectively quantify perceptual realism of an image
+- **Dense Realness Mapping**: We suggest a novel approach for *Dense REAlness Mapping(DREAM)* for localizing unrealistic regions within an image, with pixel-level interpretability
 
-The Realness Project aims to automatically assess image realism through:
-- **Mean Opinion Score (MOS) Prediction**: Predicting how realistic an image appears to human observers
-- **Unrealism Localization**: Identifying specific regions in images that appear unrealistic
-- **Multimodal Analysis**: Leveraging both visual features and textual descriptions for comprehensive analysis
-
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 Realness-Project/
-├── 📁 datasets/                      # Training and test datasets
-│   ├── 📁 train/                     # Training data
-│   │   ├── 📁 images/                # Training images
-│   │   └── 🟩 image_descriptions.csv
-│   └── 📁 test/                      # Test data
-│       ├── 📁 images/                # Test images
-│       └── 🟩 image_descriptions.csv
-├── 📁 regression/                    # MOS prediction model
-│   ├── 🐍 train.py                   # Training script
-│   ├── 🐍 realism_dataset.py         # Dataset class
-│   └── 🐍 regression_model.py        # Model architecture
-├── 📁 localization/                  # Unrealism localization
-|   ├── 🐍 desc_generation.py         # Generating image descriptions
-│   ├── 🐍 get_unrealism_heatmaps.py  # Computation of unrealism heatmaps
-│   └── 🐍 run_heatmap_analysis.py    # Heatmap analysis on one or more images
-├── 📁 Images/                        # Project documentation images
+├── datasets/                         # Training and test datasets
+│   ├── train/                        # Training data
+│   │   ├── images/                   # Training images
+│   │   └── image_descriptions.csv    # Training annotations
+│   └── test/                         # Test data
+│       ├── images/                   # Test images
+│       └── image_descriptions.csv    # Test annotations
+├── regression/                       # MOS prediction module
+│   ├── train.py                      # Training CORE Model
+│   ├── inference.py                  # Test CORE Model
+│   ├── realism_dataset.py            # Dataset class
+│   ├── core.py                       # CORE Model architecture
+│   └── outputs/                      # Training outputs
+│       ├── best_model.pth            # Best model checkpoint
+│       └── training_curves.png       # Training visualization
+├── localization/                     # Realness mapping module
+│   ├── desc_generation.py            # Image description generation
+│   ├── compute_heatmaps.py           # Heatmap computation
+│   └── run_dream.py                  # Run complete DREAM pipeline
+├── scripts/                          # Shell scripts
+│   ├── run_training.sh               # Train CORE
+│   ├── run_inference.sh              # Test CORE
+│   └── compute_heatmaps.sh           # Run DREAM
+├── doc_images/                       # Documentation assets
+│   ├── DREAM results.png             # Sample results
+│   └── CORE architectre.png          # Architecture diagram
 ├── config.py                         # Configuration settings
+├── utils.py                          # Utility functions
 ├── pyproject.toml                    # Project dependencies
-├── train.sh                          # Training script
-├── requirements.txt                  # Python dependencies fallback
-└── compute_heatmaps.sh               # Heatmap generation script
+├── requirements.txt                  # Python dependencies
+└── README.md                         # Documentation
 ```
 
-## 🚀 How to Use
+## How to Use
 
 ### Prerequisites
 
@@ -65,7 +73,7 @@ Realness-Project/
    pip install -e .
    ```
 
-### 🏋️ Training the MOS Prediction Model
+### Training CORE
 
 Run the training script to train the multimodal MOS prediction model:
 
@@ -78,7 +86,7 @@ Or run directly:
 python3 -m regression.train
 ```
 
-### 🔍 Computing Unrealism Heatmaps
+### Computing Dense Realness Heatmaps
 
 Compute heatmaps to visualize which parts of images appear unrealistic:
 
@@ -96,28 +104,25 @@ Compute heatmaps to visualize which parts of images appear unrealistic:
 ./compute_heatmaps.sh f22.png --window 128 --stride 64
 ```
 
-## 🧠 Model Architecture
+## CORE (Cross-model Objective Realness Estimator)
 
-### MOS Prediction Model
-
-Our multimodal approach combines:
-
-- **Visual Features**: ResNet-50 pretrained on ImageNet
+Our multimodal approach is a combination of three distinct modules:
+- **Visual Feature Extraction Module**: ResNet-50 (pretrained on ImageNet)
   - Extracts 2048-dimensional image features
   - Optional freezing for transfer learning
 
-- **Text Features**: BERT-base-uncased
+- **Textual Feature Extraction Module**: BERT-base-uncased (pretrained on Wikipedia and BookCorpus)
   - Processes image descriptions
   - Generates 768-dimensional text embeddings
 
-- **Fusion Network**: 
-  - Concatenates visual and text features (2816 dimensions)
+- **Fully Connected Network Module**: 
+  - Concatenates visual and text features 
   - Dense layers with ReLU activation
   - Single output for MOS prediction
 
-![Regression Model Architecture](./doc_images/Annual%20Report%201st%20year%20V1%20(1).png)
+![CORE Architecture](./doc_images/CORE_architecture.png)
 
-### Compute and Localize Unrealism Heatmaps
+## DREAM (Dense REAlness Mapping)
 
 Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
 
@@ -125,73 +130,32 @@ Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
 - **Text-Image Similarity**: Computes cosine similarity between patch embeddings and text descriptions
 - **Heatmap Generation**: Aggregates similarity scores to create spatial heatmaps
 
-![Heatmaps localizing unreal regions of an image](./doc_images/output_medain2_MOS.png)
+![DREAM Architecture](./doc_images/DREAM.png)
 
-## 📈 Performance Metrics
+## Performance and Results
 
+### MOS Prediction module (CORE)
 The model is evaluated using:
 - **Spearman Correlation**: Measures rank correlation with human judgments
 - **Pearson Correlation**: Measures linear correlation
-- **Mean Squared Error (MSE)**: Training loss function
 
-## 💻 Usage Examples
+|**Dataset**        | **SROCC**  | **PLCC**    |
+|-------------------|------------|-------------|
+| RAISE             | 0.7778     | 0.7976      |     
+| AGIN              | 0.7564     | 0.7711      |  
 
-### Training with Custom Parameters
+### Realness Heatmap Computation module (DREAM)
+We present the results of our dense realness mapping module in the form of heatmaps
+![DREAM results](./doc_images/DREAM_results.png)
 
-```python
-from regression.train import main, train_model, load_and_prepare_data, create_data_loaders
-
-# Load data
-train_df, val_df, test_df = load_and_prepare_data()
-
-# Create data loaders
-train_loader, val_loader, test_loader = create_data_loaders(
-    train_df, val_df, test_df, batch_size=32
-)
-
-# Train model
-model, train_losses, val_losses, best_spearman = train_model(
-    train_loader, val_loader, test_loader, 
-    num_epochs=20, 
-    learning_rate=0.0001
-)
-```
-
-### Generating Heatmaps Programmatically
-
-```python
-from localization.run_heatmap_analysis import process_single_image, load_data
-from pathlib import Path
-
-# Load dataset
-df = load_data("datasets/test/image_descriptions.csv")
-
-# Process single image
-success = process_single_image(
-    df=df,
-    filename="f22.png",
-    images_dir=Path("datasets/test/images"),
-    output_dir=Path("localization/heatmaps"),
-    window_size=64,
-    stride=32
-)
-```
-
-## 📊 Dataset Format
-
-### CSV Structure
-```csv
-filename,MOS,description
-f22.png,-0.280048,"Somewhat. The hand resting on the shoulder appears oddly shaped..."
-f126.png,0.709697,"No, there is nothing unrealistic in this image..."
-```
+## Dataset Format
 
 ### Data Fields
 - **filename**: Image filename (PNG format)
 - **MOS**: Mean Opinion Score (continuous value, higher = more realistic)
 - **description**: Detailed text description of realism assessment
 
-## 🛠️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -207,7 +171,7 @@ BASE_DIR = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parent))
 - **Batch Size**: 16 (adjustable)
 - **Learning Rate**: 0.0001 (default)
 
-## 📋 Requirements
+## Requirements
 
 Core dependencies:
 - `torch` >= 1.12.0
@@ -221,7 +185,7 @@ Core dependencies:
 - `numpy`
 
 
-## 📄 Citation
+## Citation
 
 If you use this project in your research, please cite:
 
@@ -230,15 +194,15 @@ If you use this project in your research, please cite:
 }
 ```
 
-## 👥 Authors
+## Authors
 
 - **Dr. Somdyuti Paul** - somdyuti@cai.iitkgp.ac.in
 - **Lovish Kaushik** - lovishkaushik.24@kgpian.iitkgp.ac.in  
 - **Agnij Biswas** - biswasagnij@kgpian.iitkgp.ac.in
 
-## 📜 License
+## License
 
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 

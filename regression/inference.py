@@ -17,11 +17,11 @@ warnings.filterwarnings("ignore")
 
 try:
     from config import BASE_DIR
-    from regression.regression_model import MOSPredictor
+    from regression.core import COREModel
     from utils import evaluate_correlation_scores, create_data_loader
 except ImportError:
     from ..config import BASE_DIR
-    from regression_model import MOSPredictor
+    from core import COREModel
     from ..utils import evaluate_correlation_scores, create_data_loader
 
 # Setting seeds for reproducibility
@@ -33,14 +33,14 @@ np.random.seed(seed)
 
 TEST_IMG_PATH = BASE_DIR / "datasets" / "test" / "images"
 TEST_CSV_PATH = BASE_DIR / "datasets" / "test" / "image_descriptions.csv"
-MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "best_model.pth"
+MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "Model3.pth"
 
 def test_best_model(test_loader):
     """Load and test the best saved model"""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     print("Loading best model for final evaluation...")
-    model = MOSPredictor().to(device)
+    model = COREModel().to(device)
     
     if os.path.exists(MODEL_SAVE_PATH):
         model.load_state_dict(torch.load(MODEL_SAVE_PATH))
@@ -73,7 +73,7 @@ def predict_single_image(model, image_path, description, device):
     Predict MOS for a single image
     
     Args:
-        model: Trained MOSPredictor model
+        model: Trained COREModel model
         image_path: Path to the image file
         description: Text description of the image
         device: Device to run inference on
@@ -203,7 +203,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
-    model = MOSPredictor().to(device)
+    model = COREModel().to(device)
 
     results_save_path = BASE_DIR / "regression" / "outputs" / "test_predictions.csv"
     

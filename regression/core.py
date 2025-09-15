@@ -3,9 +3,9 @@ import torch.nn as nn
 import torchvision.models as models
 from transformers import BertModel
 
-class MOSPredictor(nn.Module):
+class COREModel(nn.Module):
     def __init__(self,x=529,freeze_cnn=False, freeze_bert=False):
-        super(MOSPredictor, self).__init__()
+        super(COREModel, self).__init__()
         # ResNet-50
         self.cnn = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
         self.cnn.fc = nn.Identity()  # remove classification head
