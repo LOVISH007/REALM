@@ -8,7 +8,7 @@ set -e  # Exit on any error
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "===================================================================================="
 echo "Realness Project - Heatmap Analysis"
@@ -97,10 +97,10 @@ echo "Arguments: ${args[*]}"
 echo ""
 
 # Run the heatmap analysis
-echo "Running: python3 localization/run_heatmap_analysis.py ${args[*]}"
+echo "Running: python3 localization/run_dream.py ${args[*]}"
 echo ""
 
-if python3 localization/run_heatmap_analysis.py "${args[@]}"; then
+if python3 localization/run_dream.py "${args[@]}"; then
     echo ""
     echo "===================================================================================="
     echo "Heatmap Analysis completed successfully!"
