@@ -47,9 +47,7 @@ def test_best_model(test_loader):
         print(f"Loaded model from: {MODEL_SAVE_PATH}")
     else:
         print("No saved model found. Using current model state.")
-    
-    model.eval()
-    
+        
     spearman_corr, pearson_corr = evaluate_correlation_scores(model, test_loader, device)
     
     return spearman_corr, pearson_corr
@@ -113,66 +111,6 @@ def predict_single_image(model, image_path, description, device):
     return prediction.cpu().item()
 
 
-def generate_predictions_report(model, test_loader, test_df, device, save_path=None) -> Tuple[pd.DataFrame, float, float]:
-    """
-    Generate detailed predictions report
-    
-    Args:
-        model (nn.Module): trained model
-        test_loader (torch.utils.data.DataLoader): test data loader
-        test_df (pd.DataFrame): test dataframe
-        device (torch.device): device to run on
-        save_path (str): path to save the report
-
-    Returns:
-        Tuple[pd.DataFrame, float, float]: DataFrame with predictions and metrics 
-    """
-    model.eval()
-    all_preds = []
-    all_targets = []
-    all_filenames = []
-    
-    print("Generating predictions for all test samples...")
-    
-    with torch.no_grad():
-        for batch_idx, (images, input_ids, attention_mask, mos) in enumerate(test_loader):
-            images = images.to(device)
-            input_ids = input_ids.to(device)
-            attention_mask = attention_mask.to(device)
-            
-            preds = model(images, input_ids, attention_mask)
-            
-            all_preds.extend(preds.cpu().numpy())
-            all_targets.extend(mos.cpu().numpy())
-            
-            # Get filenames for this batch
-            start_idx = batch_idx * test_loader.batch_size
-            end_idx = min(start_idx + test_loader.batch_size, len(test_df))
-            batch_filenames = test_df.iloc[start_idx:end_idx]['filename'].tolist()
-            all_filenames.extend(batch_filenames)
-            
-            if (batch_idx + 1) % 10 == 0:
-                print(f"Processed {(batch_idx + 1) * test_loader.batch_size}/{len(test_df)} samples")
-    
-    # Create results dataframe
-    results_df = pd.DataFrame({
-        'filename': all_filenames,
-        'true_MOS': all_targets,
-        'predicted_MOS': all_preds,
-        'error': np.array(all_preds) - np.array(all_targets),
-        'absolute_error': np.abs(np.array(all_preds) - np.array(all_targets))
-    })
-    
-    # Add descriptions
-    results_df = results_df.merge(test_df[['filename', 'description']], on='filename', how='left')
-    
-    # Calculate metrics
-    spearman_corr, _ = spearmanr(all_targets, all_preds)
-    pearson_corr, _ = pearsonr(all_targets, all_preds)
-    
-    return results_df, spearman_corr, pearson_corr
-
-
 def run_inference_on_images(model, test_df, device, image_filenames):
     """
     Run inference on specific image filenames
@@ -209,22 +147,17 @@ def run_inference_on_images(model, test_df, device, image_filenames):
         # Make prediction
         predicted_mos = predict_single_image(model, image_path, description, device)
         
-        if predicted_mos is not None:
-            error = abs(predicted_mos - true_mos)
-            
+        if predicted_mos is not None:            
             print(f"\nImage: {filename}")
             print(f"Description: {description}")
             print(f"True MOS: {true_mos:.4f}")
             print(f"Predicted MOS: {predicted_mos:.4f}")
-            print(f"Absolute Error: {error:.4f}")
             print("-" * 40)
             
             results.append({
                 'filename': filename,
                 'true_MOS': true_mos,
                 'predicted_MOS': predicted_mos,
-                'error': predicted_mos - true_mos,
-                'absolute_error': error,
                 'description': description
             })
         else:
@@ -233,15 +166,6 @@ def run_inference_on_images(model, test_df, device, image_filenames):
     if results:
         # Create results dataframe
         results_df = pd.DataFrame(results)
-        
-        # Calculate metrics
-        true_scores = results_df['true_MOS'].values
-        pred_scores = results_df['predicted_MOS'].values
-        
-        # Save results
-        results_save_path = BASE_DIR / "regression" / f"inference_results_{'_'.join(image_filenames[:3])}.csv"
-        results_df.to_csv(results_save_path, index=False)
-        print(f"Results saved to: {results_save_path}")
         
         return results_df
     else:
@@ -280,6 +204,8 @@ def main():
     print(f"Using device: {device}")
     
     model = MOSPredictor().to(device)
+
+    results_save_path = BASE_DIR / "regression" / "outputs" / "test_predictions.csv"
     
     if os.path.exists(MODEL_SAVE_PATH):
         model.load_state_dict(torch.load(MODEL_SAVE_PATH, map_location=device))
@@ -291,14 +217,8 @@ def main():
     if run_full_test:
         # Run inference on full test set
         print("\nRunning inference on full test set...")
-        test_loader = create_data_loader(test_df, TEST_IMG_PATH, batch_size=16)
+        test_loader = create_data_loader(test_df, TEST_IMG_PATH, batch_size=16, split="test")
         spearman_corr, pearson_corr = test_best_model(test_loader)
-        
-        # Generate detailed predictions report
-        results_save_path = BASE_DIR / "regression" / "test_predictions.csv"
-        results_df, _, _ = generate_predictions_report(
-            model, test_loader, test_df, device, save_path=results_save_path
-        )
         
         print("=" * 60)
         print(f"Total samples: {len(test_df)}")
@@ -308,6 +228,9 @@ def main():
     else:
         # Run inference on specific images
         results_df = run_inference_on_images(model, test_df, device, target_images)
+        if results_df is not None:
+            results_df.to_csv(results_save_path, index=False)
+        print(f"Detailed results saved to: {results_save_path}")
     
     print("\n" + "=" * 60)
     print("INFERENCE COMPLETED SUCCESSFULLY")

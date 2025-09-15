@@ -30,9 +30,9 @@ def evaluate_correlation_scores(model, test_loader, device):
         all_preds.extend(preds.cpu().numpy())
         all_targets.extend(mos.cpu().numpy())
 
-    spearmanr_corr, _ = spearmanr(all_targets, all_preds)
+    corr, _ = spearmanr(all_targets, all_preds)
     pearsonr_corr, _ = pearsonr(all_targets, all_preds)
-    return spearmanr_corr, pearsonr_corr
+    return corr, pearsonr_corr
 
 
 @torch.no_grad()
@@ -51,7 +51,7 @@ def validate(model, val_loader, criterion, device):
     return total_loss / len(val_loader)
 
 
-def create_data_loader(df, image_path, batch_size=16) -> DataLoader:
+def create_data_loader(df, image_path, batch_size=16, split="train") -> DataLoader:
     """
     Create data loaders for training, validation, and testing
 
@@ -73,10 +73,11 @@ def create_data_loader(df, image_path, batch_size=16) -> DataLoader:
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  
     ])
     
-    transform_test = transforms.Compose([
-        transforms.Resize((384, 512)),
-        transforms.ToTensor(),
-    ])
+    if split == "test":
+        transform = transforms.Compose([
+            transforms.Resize((384, 512)),
+            transforms.ToTensor(),
+        ])
     
     # Initialize tokenizer
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
@@ -85,7 +86,7 @@ def create_data_loader(df, image_path, batch_size=16) -> DataLoader:
     dataset = RealismDataset(df, image_dir=image_path, tokenizer=tokenizer, transform=transform)
     
     # Create data loaders
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=(split=="train"))
     
     return dataloader
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to run model inference
-# Author: Realness-Project Team
+# Author: Agnij Biswas
 # Description: This script runs inference on the test dataset using the trained MOS prediction model
 
 set -e  # Exit on any error
@@ -55,7 +55,7 @@ echo ""
 MODEL_PATH="$PROJECT_ROOT/saved_models/best_model.pth"
 if [[ ! -f "$MODEL_PATH" ]]; then
     echo "Error: Trained model not found at $MODEL_PATH"
-    echo "Please train the model first using: ./train.sh"
+    echo "Please train the model first using: $PROJECT_ROOT/scripts/run_training.sh or put a model at $MODEL_PATH"
     exit 1
 else
     echo "✓ Found trained model: $MODEL_PATH"
@@ -66,11 +66,13 @@ echo ""
 # Install dependencies if needed
 if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
     echo "Installing/updating dependencies from pyproject.toml..."
-    pip install -e .
+    pip install -e . --quiet
+    echo "Done"
     echo ""
 elif [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then
     echo "Installing/updating dependencies from requirements.txt..."
     pip install -r "$PROJECT_ROOT/requirements.txt"
+    echo "Done"
     echo ""
 fi
 

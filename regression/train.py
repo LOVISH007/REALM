@@ -32,9 +32,15 @@ torch.backends.cudnn.deterministic = True
 np.random.seed(seed)
 
 # Define paths based on BASE_DIR from config
-TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
-TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
+# TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
+TRAIN_IMG_PATH = "/home/lovish/PROJECTS/RealnessProject/Images/train_images"
+# TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
+TRAIN_CSV_PATH = "/home/lovish/PROJECTS/RealnessProject/IRWD2/TrainGPT4_1.csv"
+
 MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "best_model.pth"
+
+if not os.path.exists(BASE_DIR / "saved_models"):
+    os.makedirs(BASE_DIR / "saved_models")
 
 
 def load_and_prepare_data():
