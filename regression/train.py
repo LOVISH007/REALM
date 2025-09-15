@@ -17,11 +17,11 @@ warnings.filterwarnings("ignore")
 
 try:
     from config import BASE_DIR
-    from regression.regression_model import MOSPredictor
+    from regression.core import COREModel
     from utils import evaluate_correlation_scores, validate, plot_losses, create_data_loader
 except ImportError:
     from ..config import BASE_DIR
-    from regression_model import MOSPredictor
+    from core import COREModel
     from ..utils import evaluate_correlation_scores, validate, plot_losses, create_data_loader
 
 # Setting seeds for reproducibility
@@ -32,11 +32,8 @@ torch.backends.cudnn.deterministic = True
 np.random.seed(seed)
 
 # Define paths based on BASE_DIR from config
-# TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
-TRAIN_IMG_PATH = "/home/lovish/PROJECTS/RealnessProject/Images/train_images"
-# TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
-TRAIN_CSV_PATH = "/home/lovish/PROJECTS/RealnessProject/IRWD2/TrainGPT4_1.csv"
-
+TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
+TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
 MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "best_model.pth"
 
 if not os.path.exists(BASE_DIR / "saved_models"):
@@ -72,7 +69,7 @@ def train_model(train_loader, val_loader, num_epochs=10, learning_rate=0.0001):
     print(f"Using device: {device}")
     
     # Initialize model
-    model = MOSPredictor().to(device)
+    model = COREModel().to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     
@@ -141,7 +138,7 @@ def test_best_model(val_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     print("Loading best model for final evaluation...")
-    model = MOSPredictor().to(device)
+    model = COREModel().to(device)
     
     if os.path.exists(MODEL_SAVE_PATH):
         model.load_state_dict(torch.load(MODEL_SAVE_PATH))

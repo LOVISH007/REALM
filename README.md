@@ -1,41 +1,56 @@
-# Realness Project
+# REALM: REalness Assessment and Localization using Multimodal features
 
-A comprehensive framework for analyzing and predicting image realism using multimodal deep learning approaches. This project combines computer vision and natural language processing to assess the perceptual realism of images and localize unrealistic regions.
-
-![Realness Maps](./doc_images/Localization_results.png)
+We present REALM, comprehensive framework for analyzing and predicting image realism using multimodal deep learning approaches. This project combines multimodal MOS prediction module (**CORE**) along with a novel approach (**DREAM**) to obtain dense realness mappings to effectively detect unreal patch regions within an image.
 
 ## 🎯 Project Overview
 
-The Realness Project aims to automatically assess image realism through:
-- **Mean Opinion Score (MOS) Prediction**: Predicting how realistic an image appears to human observers
-- **Unrealism Localization**: Identifying specific regions in images that appear unrealistic
-- **Multimodal Analysis**: Leveraging both visual features and textual descriptions for comprehensive analysis
+### Objectives:
+- **Dataset Augmentation**: We augmented existing AIGI datasets with VLM generated natural language descriptions of visual inconsistencies, extractng relevant textual features
+- **Objective Realness Assessment**: We designed Cross-modal Objective Realness Estimator (*CORE*) to use both visual and textual feature to effectively quantify perceptual realism of an image
+- **Dense Realness Mapping**: We suggest a novel approach to localize unrealistic regions within an image, with pixel-level interpretability
 
 ## 🏗️ Project Structure
 
 ```
 Realness-Project/
-├── 📁 datasets/                      # Training and test datasets
-│   ├── 📁 train/                     # Training data
-│   │   ├── 📁 images/                # Training images
-│   │   └── 🟩 image_descriptions.csv
-│   └── 📁 test/                      # Test data
-│       ├── 📁 images/                # Test images
-│       └── 🟩 image_descriptions.csv
-├── 📁 regression/                    # MOS prediction model
-│   ├── 🐍 train.py                   # Training script
-│   ├── 🐍 realism_dataset.py         # Dataset class
-│   └── 🐍 regression_model.py        # Model architecture
-├── 📁 localization/                  # Unrealism localization
-|   ├── 🐍 desc_generation.py         # Generating image descriptions
-│   ├── 🐍 get_unrealism_heatmaps.py  # Computation of unrealism heatmaps
-│   └── 🐍 run_heatmap_analysis.py    # Heatmap analysis on one or more images
-├── 📁 Images/                        # Project documentation images
-├── config.py                         # Configuration settings
-├── pyproject.toml                    # Project dependencies
-├── train.sh                          # Training script
-├── requirements.txt                  # Python dependencies fallback
-└── compute_heatmaps.sh               # Heatmap generation script
+├── datasets/                         # Training and test datasets
+│   ├── train/                        # Training data
+│   │   ├── images/                   # Training images
+│   │   └── image_descriptions.csv    # Training annotations
+│   └── test/                         # Test data
+│       ├── images/                   # Test images
+│       └── image_descriptions.csv    # Test annotations
+├── regression/                       # MOS prediction model
+│   ├── train.py                      # Training script
+│   ├── inference.py                  # Inference script
+│   ├── realism_dataset.py           # Dataset class
+│   ├── regression_model.py          # Model architecture
+│   ├── best_model.pth               # Latest best model
+│   ├── outputs/                     # Training outputs
+│   │   ├── best_model.pth          # Best model checkpoint
+│   │   ├── test_predictions.csv    # Model predictions
+│   │   └── training_curves.png     # Training visualization
+│   └── models/                      # Model checkpoints
+├── localization/                     # Unrealism localization
+│   ├── desc_generation.py           # Image description generation
+│   ├── get_unrealism_heatmaps.py    # Heatmap computation
+│   └── run_heatmap_analysis.py      # Analysis pipeline
+├── scripts/                         # Shell scripts
+│   ├── run_training.sh             # Training launcher
+│   ├── run_inference.sh            # Inference launcher
+│   └── compute_heatmaps.sh         # Heatmap generator
+├── saved_models/                    # Model storage
+│   ├── best_model.pth              # Production model
+│   └── Model3.pth                  # Backup model
+├── doc_images/                      # Documentation assets
+│   ├── Localization_results.png    # Sample results
+│   ├── output_medain2_MOS.png      # Heatmap visualization
+│   └── Annual Report 1st year V1 (1).png # Architecture diagram
+├── config.py                        # Configuration settings
+├── utils.py                        # Utility functions
+├── pyproject.toml                  # Project dependencies
+├── requirements.txt                # Python dependencies
+└── README.md                       # Documentation
 ```
 
 ## 🚀 How to Use
