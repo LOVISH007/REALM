@@ -120,7 +120,7 @@ Our multimodal approach is a combination of three distinct modules:
   - Dense layers with ReLU activation
   - Single output for MOS prediction
 
-![CORE Architecture]("./doc_images/CORE architecture.png")
+![CORE Architecture](./doc_images/CORE_architecture.png)
 
 ## DREAM (Dense REAlness Mapping)
 
@@ -146,7 +146,7 @@ The model is evaluated using:
 
 ### Realness Heatmap Computation module (DREAM)
 We present the results of our dense realness mapping module in the form of heatmaps
-![DREAM results]("./doc_images/DREAM results.png")
+![DREAM results](./doc_images/DREAM_results.png)
 
 ## Dataset Format
 
