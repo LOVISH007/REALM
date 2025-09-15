@@ -8,7 +8,7 @@ set -e
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$SCRIPT_DIR"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "===================================================================================="
 echo "Realness Project - Training Script"
@@ -51,14 +51,17 @@ fi
 if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
     echo "Installing dependencies from pyproject.toml..."
     pip install -e .
+    echo "Done"
     echo ""
 elif [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then
     echo "Installing dependencies from requirements.txt..."
     pip install -r "$PROJECT_ROOT/requirements.txt"
+    echo "Done"
     echo ""
 else
     echo "Warning: Neither pyproject.toml nor requirements.txt found."
     echo "You may need to install dependencies manually."
+    echo "Done"
     echo ""
 fi
 

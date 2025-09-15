@@ -53,15 +53,17 @@ fi
 
 
 # Install dependencies if needed
-# if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
-#     echo "Installing/updating dependencies from pyproject.toml..."
-#     pip install -e .
-#     echo ""
-# elif [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then
-#     echo "Installing/updating dependencies from requirements.txt..."
-#     pip install -r "$PROJECT_ROOT/requirements.txt"
-#     echo ""
-# fi
+if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
+    echo "Installing/updating dependencies from pyproject.toml..."
+    pip install -e . --quiet
+    echo "Done"
+    echo ""
+elif [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then
+    echo "Installing/updating dependencies from requirements.txt..."
+    pip install -r "$PROJECT_ROOT/requirements.txt" --quiet
+    echo "Done"
+    echo ""
+fi
 
 # Create output directories
 mkdir -p "$PROJECT_ROOT/localization/heatmaps"

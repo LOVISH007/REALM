@@ -17,14 +17,12 @@ warnings.filterwarnings("ignore")
 
 try:
     from config import BASE_DIR
-    from regression.realism_dataset import RealismDataset
     from regression.regression_model import MOSPredictor
-    from utils import evaluate_correlation_scores, validate, plot_losses
+    from utils import evaluate_correlation_scores, validate, plot_losses, create_data_loader
 except ImportError:
     from ..config import BASE_DIR
-    from realism_dataset import RealismDataset
     from regression_model import MOSPredictor
-    from ..utils import evaluate_correlation_scores, validate, plot_losses
+    from ..utils import evaluate_correlation_scores, validate, plot_losses, create_data_loader
 
 # Setting seeds for reproducibility
 seed = 42
@@ -34,11 +32,15 @@ torch.backends.cudnn.deterministic = True
 np.random.seed(seed)
 
 # Define paths based on BASE_DIR from config
-TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
-TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
-TEST_IMG_PATH = BASE_DIR / "datasets" / "test" / "images"
-TEST_CSV_PATH = BASE_DIR / "datasets" / "test" / "image_descriptions.csv"
-MODEL_SAVE_PATH = BASE_DIR / "regression" / "outputs" / "best_model.pth"
+# TRAIN_IMG_PATH = BASE_DIR / "datasets" / "train" / "images"
+TRAIN_IMG_PATH = "/home/lovish/PROJECTS/RealnessProject/Images/train_images"
+# TRAIN_CSV_PATH = BASE_DIR / "datasets" / "train" / "image_descriptions.csv"
+TRAIN_CSV_PATH = "/home/lovish/PROJECTS/RealnessProject/IRWD2/TrainGPT4_1.csv"
+
+MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "best_model.pth"
+
+if not os.path.exists(BASE_DIR / "saved_models"):
+    os.makedirs(BASE_DIR / "saved_models")
 
 
 def load_and_prepare_data():
@@ -49,63 +51,21 @@ def load_and_prepare_data():
     train_df = pd.read_csv(TRAIN_CSV_PATH)
     print(f"Loaded {len(train_df)} training samples")
     
-    # Load the test CSV file
-    test_df = pd.read_csv(TEST_CSV_PATH)
-    print(f"Loaded {len(test_df)} test samples")
     
     # Split training data into train and validation
     train_df, val_df = train_test_split(train_df, test_size=0.20, random_state=42)
     
     print(f"Train samples: {len(train_df)}")
     print(f"Validation samples: {len(val_df)}")
-    print(f"Test samples: {len(test_df)}")
     
     # Display basic statistics
     print(f"Train MOS range: {train_df['MOS'].min():.4f} to {train_df['MOS'].max():.4f}")
     print(f"Train MOS mean: {train_df['MOS'].mean():.4f}, std: {train_df['MOS'].std():.4f}")
-    print(f"Test MOS range: {test_df['MOS'].min():.4f} to {test_df['MOS'].max():.4f}")
-    print(f"Test MOS mean: {test_df['MOS'].mean():.4f}, std: {test_df['MOS'].std():.4f}")
     
-    return train_df, val_df, test_df
+    return train_df, val_df
 
 
-def create_data_loaders(train_df, val_df, test_df, batch_size=16):
-    """Create data loaders for training, validation, and testing"""
-    
-    # Define transforms (matching the notebook)
-    transform = transforms.Compose([
-        transforms.Resize((384, 512)),
-        transforms.ToTensor(),
-        transforms.RandomHorizontalFlip(),  # Data augmentation
-        transforms.RandomRotation(10),  # Data augmentation
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Data augmentation
-    ])
-    
-    transform_test = transforms.Compose([
-        transforms.Resize((384, 512)),
-        transforms.ToTensor(),
-    ])
-    
-    # Initialize tokenizer
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    
-    # Create datasets
-    train_dataset = RealismDataset(train_df, image_dir=TRAIN_IMG_PATH, 
-                                  tokenizer=tokenizer, transform=transform)
-    val_dataset = RealismDataset(val_df, image_dir=TRAIN_IMG_PATH, 
-                                tokenizer=tokenizer, transform=transform)
-    test_dataset = RealismDataset(test_df, image_dir=TEST_IMG_PATH, 
-                                 tokenizer=tokenizer, transform=transform_test)
-    
-    # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    
-    return train_loader, val_loader, test_loader
-
-
-def train_model(train_loader, val_loader, test_loader, num_epochs=10, learning_rate=0.0001):
+def train_model(train_loader, val_loader, num_epochs=10, learning_rate=0.0001):
     """Train the MOS prediction model"""
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -119,8 +79,8 @@ def train_model(train_loader, val_loader, test_loader, num_epochs=10, learning_r
     # Training tracking
     train_losses = []
     val_losses = []
-    best_pearson_corr = 0.80
-    best_spearman_corr = 0.7627
+    best_pearson_corr = 0.0
+    best_spearman_corr = 0.0
     
     print("Starting training...")
     print("-" * 50)
@@ -158,7 +118,7 @@ def train_model(train_loader, val_loader, test_loader, num_epochs=10, learning_r
         
         # Evaluate on test set
         model.eval()
-        spearman_corr, pearson_corr = evaluate_correlation_scores(model, test_loader, device)
+        spearman_corr, pearson_corr = evaluate_correlation_scores(model, val_loader, device)
         print(f"Pearson Correlation: {pearson_corr:.4f}, Spearman Correlation: {spearman_corr:.4f}")
         
         # Save best model
@@ -176,7 +136,7 @@ def train_model(train_loader, val_loader, test_loader, num_epochs=10, learning_r
     return model, train_losses, val_losses, best_spearman_corr
 
 
-def test_best_model(test_loader):
+def test_best_model(val_loader):
     """Load and test the best saved model"""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -191,14 +151,7 @@ def test_best_model(test_loader):
     
     model.eval()
     
-    spearman_corr, pearson_corr = evaluate_correlation_scores(model, test_loader, device)
-    
-    print("=" * 50)
-    print("FINAL TEST RESULTS")
-    print("=" * 50)
-    print(f"Final Test Spearman Correlation: {spearman_corr:.4f}")
-    print(f"Final Test Pearson Correlation: {pearson_corr:.4f}")
-    print("=" * 50)
+    spearman_corr, pearson_corr = evaluate_correlation_scores(model, val_loader, device)
     
     return spearman_corr, pearson_corr
 
@@ -209,23 +162,22 @@ def main():
     print("=" * 50)
     
     # Check if required directories exist
-    required_paths = [TRAIN_IMG_PATH, TRAIN_CSV_PATH, TEST_IMG_PATH, TEST_CSV_PATH]
+    required_paths = [TRAIN_IMG_PATH, TRAIN_CSV_PATH]
     for path in required_paths:
         if not os.path.exists(path):
             print(f"Error: Required path not found: {path}")
             return
     
     # Load and prepare data
-    train_df, val_df, test_df = load_and_prepare_data()
+    train_df, val_df = load_and_prepare_data()
     
     # Create data loaders
-    train_loader, val_loader, test_loader = create_data_loaders(
-        train_df, val_df, test_df, batch_size=16
-    )
+    train_loader = create_data_loader(train_df, TRAIN_IMG_PATH, batch_size=16)
+    val_loader = create_data_loader(val_df, TRAIN_IMG_PATH, batch_size=16)
     
     # Train the model
     model, train_losses, val_losses, best_spearman = train_model(
-        train_loader, val_loader, test_loader, num_epochs=10, learning_rate=0.0001101
+        train_loader, val_loader, num_epochs=10, learning_rate=0.0001101
     )
     
     # Plot training curves
@@ -233,16 +185,15 @@ def main():
     plot_losses(train_losses, val_losses, save_path=plot_save_path)
     
     # Final evaluation with best model
-    final_spearman, final_pearson = test_best_model(test_loader)
+    final_spearman, final_pearson = test_best_model(val_loader)
     
     print("\nTraining Summary:")
     print("=" * 50)
     print(f"Best Spearman during training: {best_spearman:.4f}")
-    print(f"Final test Spearman: {final_spearman:.4f}")
-    print(f"Final test Pearson: {final_pearson:.4f}")
+    print(f"Final val Spearman: {final_spearman:.4f}")
+    print(f"Final val Pearson: {final_pearson:.4f}")
     print(f"Train samples: {len(train_df)}")
     print(f"Validation samples: {len(val_df)}")
-    print(f"Test samples: {len(test_df)}")
 
 
 if __name__ == "__main__":

@@ -15,26 +15,27 @@ The Realness Project aims to automatically assess image realism through:
 
 ```
 Realness-Project/
-├── 📁 datasets/               # Training and test datasets
-│   ├── 📁 train/              # Training data
-│   │   ├── 📁 images/         # Training images
+├── 📁 datasets/                      # Training and test datasets
+│   ├── 📁 train/                     # Training data
+│   │   ├── 📁 images/                # Training images
 │   │   └── 🟩 image_descriptions.csv
-│   └── 📁 test/               # Test data
-│       ├── 📁 images/         # Test images
+│   └── 📁 test/                      # Test data
+│       ├── 📁 images/                # Test images
 │       └── 🟩 image_descriptions.csv
-├── 📁 regression/             # MOS prediction model
-│   ├── 🐍 train.py            # Training script
-│   ├── 🐍 realism_dataset.py  # Dataset class
-│   └── 🐍 regression_model.py # Model architecture
-├── 📁 localization/           # Unrealism localization
-│   ├── 🐍 get_unrealism_heatmaps.py
-│   └── 🐍 run_heatmap_analysis.py
-├── 📁 notebooks/             # Jupyter notebooks for experimentation
-├── 📁 Images/                # Project documentation images
-├── config.py                 # Configuration settings
-├── pyproject.toml            # Project dependencies
-├── train.sh                  # Training script
-└── generate_heatmaps.sh      # Heatmap generation script
+├── 📁 regression/                    # MOS prediction model
+│   ├── 🐍 train.py                   # Training script
+│   ├── 🐍 realism_dataset.py         # Dataset class
+│   └── 🐍 regression_model.py        # Model architecture
+├── 📁 localization/                  # Unrealism localization
+|   ├── 🐍 desc_generation.py         # Generating image descriptions
+│   ├── 🐍 get_unrealism_heatmaps.py  # Computation of unrealism heatmaps
+│   └── 🐍 run_heatmap_analysis.py    # Heatmap analysis on one or more images
+├── 📁 Images/                        # Project documentation images
+├── config.py                         # Configuration settings
+├── pyproject.toml                    # Project dependencies
+├── train.sh                          # Training script
+├── requirements.txt                  # Python dependencies fallback
+└── compute_heatmaps.sh               # Heatmap generation script
 ```
 
 ## 🚀 How to Use
@@ -77,22 +78,22 @@ Or run directly:
 python3 -m regression.train
 ```
 
-### 🔍 Generating Unrealism Heatmaps
+### 🔍 Computing Unrealism Heatmaps
 
-Generate heatmaps to visualize which parts of images appear unrealistic:
+Compute heatmaps to visualize which parts of images appear unrealistic:
 
 ```bash
 # Process a single image (default: f22.png)
-./generate_heatmaps.sh
+./compute_heatmaps.sh
 
 # Process specific images
-./generate_heatmaps.sh f22.png f126.png
+./compute_heatmaps.sh f22.png f126.png
 
 # Process all test images
-./generate_heatmaps.sh --all
+./compute_heatmaps.sh --all
 
-# Custom parameters
-./generate_heatmaps.sh f22.png --window 128 --stride 64
+# Process specific image with custom parameters
+./compute_heatmaps.sh f22.png --window 128 --stride 64
 ```
 
 ## 🧠 Model Architecture
@@ -116,7 +117,7 @@ Our multimodal approach combines:
 
 ![Regression Model Architecture](./doc_images/Annual%20Report%201st%20year%20V1%20(1).png)
 
-### Unrealism Localization
+### Compute and Localize Unrealism Heatmaps
 
 Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
 
