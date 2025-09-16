@@ -164,7 +164,7 @@ You must either save the model checkpoint in `regression/saved_model/best_model.
 or, to run for all images:
 
 ```bash
-./run_inference.sh /path/to/your/model.pth --all
+scripts/run_inference.sh /path/to/your/model.pth --all
 ```
 
 Our model checkpoint is available at: [CORE Pretrained Weights](https://drive.google.com/file/d/1fGG6QHZhnO1aOlhF-K500UbSlxGGuI0x/view?usp=sharing)
@@ -175,16 +175,16 @@ Compute heatmaps to visualize which parts of images appear unrealistic:
 
 ```bash
 # Process a single image (default: f22.png)
-./compute_heatmaps.sh
+scripts/compute_heatmaps.sh
 
 # Process specific images
-./compute_heatmaps.sh f22.png f126.png
+scripts/compute_heatmaps.sh f22.png f126.png
 
 # Process all test images
-./compute_heatmaps.sh --all
+scripts/compute_heatmaps.sh --all
 
 # Process specific image with custom parameters
-./compute_heatmaps.sh f22.png --window 128 --stride 64
+scripts/compute_heatmaps.sh f22.png --window 128 --stride 64
 ```
 
 ## Performance and Results
