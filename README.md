@@ -167,6 +167,8 @@ or, to run for all images:
 ./run_inference.sh /path/to/your/model.pth --all
 ```
 
+Our model checkpoint is available at: [CORE Pretrained Weights](https://drive.google.com/file/d/1fGG6QHZhnO1aOlhF-K500UbSlxGGuI0x/view?usp=sharing)
+
 ### Computing Dense Realness Heatmaps
 
 Compute heatmaps to visualize which parts of images appear unrealistic:
