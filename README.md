@@ -9,6 +9,76 @@ We present **REALM**, a comprehensive framework for analyzing and predicting ima
 - **Objective Realness Assessment**: We designed *Cross-modal Objective Realness Estimator (CORE)* to use both visual and textual feature to effectively quantify perceptual realism of an image
 - **Dense Realness Mapping**: We suggest a novel approach for *Dense REAlness Mapping(DREAM)* for localizing unrealistic regions within an image, with pixel-level interpretability
 
+### CORE (Cross-model Objective Realness Estimator)
+
+Our multimodal approach is a combination of three distinct modules:
+- **Visual Feature Extraction Module**: ResNet-50 (pretrained on ImageNet)
+  - Extracts 2048-dimensional image features
+  - Optional freezing for transfer learning
+
+- **Textual Feature Extraction Module**: BERT-base-uncased (pretrained on Wikipedia and BookCorpus)
+  - Processes image descriptions
+  - Generates 768-dimensional text embeddings
+
+- **Fully Connected Network Module**: 
+  - Concatenates visual and text features 
+  - Dense layers with ReLU activation
+  - Single output for MOS prediction
+
+![CORE Architecture](./doc_images/CORE_architecture.png)
+
+### DREAM (Dense REAlness Mapping)
+
+Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
+
+- **Sliding Window**: Processes image patches with configurable window size and stride
+- **Text-Image Similarity**: Computes cosine similarity between patch embeddings and text descriptions
+- **Heatmap Generation**: Aggregates similarity scores to create spatial heatmaps
+
+![DREAM Architecture](./doc_images/DREAM.png)
+
+## Dataset Format
+
+### Data Fields
+- **filename**: Image filename (PNG format)
+- **MOS**: Mean Opinion Score (continuous value, higher = more realistic)
+- **description**: Detailed text description of realism assessment
+
+### Key Parameters
+
+- **Image Size**: 384 × 512 pixels
+- **Text Length**: Maximum 128 tokens
+- **Batch Size**: 16 (adjustable)
+
+## Configuration
+
+### Prerequisites
+
+- Python 3.9+
+- CUDA-compatible GPU (recommended)
+- 8GB+ RAM
+
+### Environment Variables
+
+Set in `config.py`:
+```python
+BASE_DIR = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parent))
+```
+
+### Requirements
+
+Core dependencies:
+- `torch` >= 1.12.0
+- `torchvision` >= 0.13.0
+- `transformers` >= 4.20.0
+- `pandas` >= 1.4.0
+- `PIL` (Pillow)
+- `matplotlib`
+- `scikit-learn`
+- `scipy`
+- `numpy`
+
+
 ## Project Structure
 
 ```
@@ -48,12 +118,6 @@ Realness-Project/
 
 ## How to Use
 
-### Prerequisites
-
-- Python 3.9+
-- CUDA-compatible GPU (recommended)
-- 8GB+ RAM
-
 ### Installation
 
 1. **Clone the repository:**
@@ -78,7 +142,7 @@ Realness-Project/
 Run the training script to train the multimodal MOS prediction model:
 
 ```bash
-./train.sh
+scripts/run_training.sh
 ```
 
 Or run directly:
@@ -86,51 +150,42 @@ Or run directly:
 python3 -m regression.train
 ```
 
+### Inference with CORE
+Use the trained model to predict MOS on test images:
+
+```bash
+scripts/run_inference.sh
+```
+You must either save the model checkpoint in `regression/saved_model/best_model.pth` or specify a different path in `run_inference.sh` as:
+```bash
+./run_inference.sh /path/to/your/model.pth [image_filename1] [image_filename2] ...
+```
+
+or, to run for all images:
+
+```bash
+scripts/run_inference.sh /path/to/your/model.pth --all
+```
+
+Our model checkpoint is available at: [CORE Pretrained Weights](https://drive.google.com/file/d/1fGG6QHZhnO1aOlhF-K500UbSlxGGuI0x/view?usp=sharing)
+
 ### Computing Dense Realness Heatmaps
 
 Compute heatmaps to visualize which parts of images appear unrealistic:
 
 ```bash
 # Process a single image (default: f22.png)
-./compute_heatmaps.sh
+scripts/compute_heatmaps.sh
 
 # Process specific images
-./compute_heatmaps.sh f22.png f126.png
+scripts/compute_heatmaps.sh f22.png f126.png
 
 # Process all test images
-./compute_heatmaps.sh --all
+scripts/compute_heatmaps.sh --all
 
 # Process specific image with custom parameters
-./compute_heatmaps.sh f22.png --window 128 --stride 64
+scripts/compute_heatmaps.sh f22.png --window 128 --stride 64
 ```
-
-## CORE (Cross-model Objective Realness Estimator)
-
-Our multimodal approach is a combination of three distinct modules:
-- **Visual Feature Extraction Module**: ResNet-50 (pretrained on ImageNet)
-  - Extracts 2048-dimensional image features
-  - Optional freezing for transfer learning
-
-- **Textual Feature Extraction Module**: BERT-base-uncased (pretrained on Wikipedia and BookCorpus)
-  - Processes image descriptions
-  - Generates 768-dimensional text embeddings
-
-- **Fully Connected Network Module**: 
-  - Concatenates visual and text features 
-  - Dense layers with ReLU activation
-  - Single output for MOS prediction
-
-![CORE Architecture](./doc_images/CORE_architecture.png)
-
-## DREAM (Dense REAlness Mapping)
-
-Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
-
-- **Sliding Window**: Processes image patches with configurable window size and stride
-- **Text-Image Similarity**: Computes cosine similarity between patch embeddings and text descriptions
-- **Heatmap Generation**: Aggregates similarity scores to create spatial heatmaps
-
-![DREAM Architecture](./doc_images/DREAM.png)
 
 ## Performance and Results
 
@@ -148,42 +203,6 @@ The model is evaluated using:
 We present the results of our dense realness mapping module in the form of heatmaps
 ![DREAM results](./doc_images/DREAM_results.png)
 
-## Dataset Format
-
-### Data Fields
-- **filename**: Image filename (PNG format)
-- **MOS**: Mean Opinion Score (continuous value, higher = more realistic)
-- **description**: Detailed text description of realism assessment
-
-## Configuration
-
-### Environment Variables
-
-Set in `config.py`:
-```python
-BASE_DIR = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parent))
-```
-
-### Key Parameters
-
-- **Image Size**: 384 × 512 pixels
-- **Text Length**: Maximum 128 tokens
-- **Batch Size**: 16 (adjustable)
-- **Learning Rate**: 0.0001 (default)
-
-## Requirements
-
-Core dependencies:
-- `torch` >= 1.12.0
-- `torchvision` >= 0.13.0
-- `transformers` >= 4.20.0
-- `pandas` >= 1.4.0
-- `PIL` (Pillow)
-- `matplotlib`
-- `scikit-learn`
-- `scipy`
-- `numpy`
-
 
 ## Citation
 
@@ -196,13 +215,18 @@ If you use this project in your research, please cite:
 
 ## Authors
 
-- **Dr. Somdyuti Paul** - somdyuti@cai.iitkgp.ac.in
 - **Lovish Kaushik** - lovishkaushik.24@kgpian.iitkgp.ac.in  
 - **Agnij Biswas** - biswasagnij@kgpian.iitkgp.ac.in
+- **Dr. Somdyuti Paul** - somdyuti@cai.iitkgp.ac.in
 
 ## License
+This project is provided for non-commercial use only.
 
+You may use, copy, modify, and share this project for personal, educational, or research purposes.
+Commercial use of any part of this project is strictly prohibited without explicit written permission from the authors.
 
-## Acknowledgments
+<hr> 
+
+*For questions about the dataset, models, or reproduction of results, please open an issue or contact the authors directly.*
 
 
