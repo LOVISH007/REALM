@@ -214,7 +214,7 @@ If you use this project in your research, please cite:
 
 - **Lovish Kaushik** - lovishkaushik.24@kgpian.iitkgp.ac.in  
 - **Agnij Biswas** - biswasagnij@kgpian.iitkgp.ac.in
-- **Dr. Somdyuti Paul** - somdyuti@cai.iitkgp.ac.in
+- **Somdyuti Paul** - somdyuti@cai.iitkgp.ac.in
 
 ## License
 This project is provided for non-commercial use only.
