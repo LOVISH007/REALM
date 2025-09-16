@@ -33,18 +33,19 @@ np.random.seed(seed)
 
 TEST_IMG_PATH = BASE_DIR / "datasets" / "test" / "images"
 TEST_CSV_PATH = BASE_DIR / "datasets" / "test" / "image_descriptions.csv"
-MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "Model3.pth"
+# Default model path - can be overridden via command line argument
+DEFAULT_MODEL_SAVE_PATH = BASE_DIR / "saved_models" / "best_model.pth"
 
-def test_best_model(test_loader):
+def test_best_model(test_loader, model_path):
     """Load and test the best saved model"""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     print("Loading best model for final evaluation...")
     model = COREModel().to(device)
     
-    if os.path.exists(MODEL_SAVE_PATH):
-        model.load_state_dict(torch.load(MODEL_SAVE_PATH))
-        print(f"Loaded model from: {MODEL_SAVE_PATH}")
+    if os.path.exists(model_path):
+        model.load_state_dict(torch.load(model_path))
+        print(f"Loaded model from: {model_path}")
     else:
         print("No saved model found. Using current model state.")
         
@@ -178,19 +179,30 @@ def main():
     print("=" * 60)
     
     # Parse command line arguments
-    if len(sys.argv) < 2:
+    import argparse
+    parser = argparse.ArgumentParser(description='Run MOS prediction inference')
+    parser.add_argument('--model', type=str, default=str(DEFAULT_MODEL_SAVE_PATH),
+                       help='Path to the trained model file')
+    parser.add_argument('--all', action='store_true',
+                       help='Run inference on all test images')
+    parser.add_argument('images', nargs='*',
+                       help='Specific image filenames to process')
+    
+    args = parser.parse_args()
+    
+    # Determine model path
+    model_save_path = Path(args.model)
+    
+    # Determine what images to process
+    if args.all or not args.images:
         run_full_test = True
         target_images = []
     else:
-        if sys.argv[1] == "--all":
-            run_full_test = True
-            target_images = []
-        else:
-            run_full_test = False
-            target_images = sys.argv[1:]
+        run_full_test = False
+        target_images = args.images
     
     # Check if required paths exist
-    required_paths = [TEST_IMG_PATH, TEST_CSV_PATH, MODEL_SAVE_PATH]
+    required_paths = [TEST_IMG_PATH, TEST_CSV_PATH, model_save_path]
     for path in required_paths:
         if not os.path.exists(path):
             print(f"Error: Required path not found: {path}")
@@ -207,9 +219,9 @@ def main():
 
     results_save_path = BASE_DIR / "regression" / "outputs" / "test_predictions.csv"
     
-    if os.path.exists(MODEL_SAVE_PATH):
-        model.load_state_dict(torch.load(MODEL_SAVE_PATH, map_location=device))
-        print(f"Loaded model from: {MODEL_SAVE_PATH}")
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+        print(f"Loaded model from: {model_save_path}")
     else:
         print("Error: No saved model found!")
         return
@@ -218,7 +230,7 @@ def main():
         # Run inference on full test set
         print("\nRunning inference on full test set...")
         test_loader = create_data_loader(test_df, TEST_IMG_PATH, batch_size=16, split="test")
-        spearman_corr, pearson_corr = test_best_model(test_loader)
+        spearman_corr, pearson_corr = test_best_model(test_loader, model_save_path)
         
         print("=" * 60)
         print(f"Total samples: {len(test_df)}")
@@ -239,4 +251,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
