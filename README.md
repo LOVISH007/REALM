@@ -52,12 +52,6 @@ Uses CLIP (Contrastive Language-Image Pre-training) for patch-level analysis:
 
 ## Configuration
 
-### Prerequisites
-
-- Python 3.9+
-- CUDA-compatible GPU (recommended)
-- 8GB+ RAM
-
 ### Environment Variables
 
 Set in `config.py`:
@@ -66,8 +60,12 @@ BASE_DIR = Path(os.getenv("PROJECT_ROOT", Path(__file__).resolve().parent))
 ```
 
 ### Requirements
+Core requirements:
+- Python 3.9+
+- CUDA-compatible GPU (recommended)
+- 8GB+ RAM
 
-Core dependencies:
+Library dependencies:
 - `torch` >= 1.12.0
 - `torchvision` >= 0.13.0
 - `transformers` >= 4.20.0
@@ -77,7 +75,6 @@ Core dependencies:
 - `scikit-learn`
 - `scipy`
 - `numpy`
-
 
 ## Project Structure
 
