@@ -155,7 +155,7 @@ scripts/run_inference.sh
 ```
 You must either save the model checkpoint in `regression/saved_model/best_model.pth` or specify a different path in `run_inference.sh` as:
 ```bash
-./run_inference.sh /path/to/your/model.pth [image_filename1] [image_filename2] ...
+scripts/run_inference.sh /path/to/your/model.pth [image_filename1] [image_filename2] ...
 ```
 
 or, to run for all images:
