@@ -44,7 +44,10 @@ def test_best_model(test_loader, model_path):
     model = COREModel().to(device)
     
     if os.path.exists(model_path):
-        model.load_state_dict(torch.load(model_path))
+        if device.type == 'cuda':
+            model.load_state_dict(torch.load(model_path))
+        else:
+            model.load_state_dict(torch.load(model_path, map_location=device))
         print(f"Loaded model from: {model_path}")
     else:
         print("No saved model found. Using current model state.")
