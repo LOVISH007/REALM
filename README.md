@@ -79,7 +79,7 @@ Library dependencies:
 ## Project Structure
 
 ```
-Realness-Project/
+REALM/
 ├── datasets/                         # Training and test datasets
 │   ├── train/                        # Training data
 │   │   ├── images/                   # Training images
