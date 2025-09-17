@@ -206,7 +206,7 @@ We present the results of our dense realness mapping module in the form of heatm
 If you use this project in your research, please cite:
 
 ```bibtex
-@misc{raise,
+@misc{realm,
   title={Image Realness Assessment and Localization with Multimodal Features},
   author={Lovish Kaushik and Agnij Biswas and Somdyuti Paul},
   year={2025},
