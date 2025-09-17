@@ -207,7 +207,7 @@ If you use this project in your research, please cite:
 
 ```bibtex
 @misc{raise,
-  title={IMAGE REALNESS ASSESSMENT AND LOCALIZATION WITH MULTIMODAL FEATURES},
+  title={Image Realness Assessment and Localization with Multimodal Features},
   author={Lovish Kaushik and Agnij Biswas and Somdyuti Paul},
   year={2025},
   eprint={2509.13289},
