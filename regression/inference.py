@@ -58,16 +58,9 @@ def test_best_model(test_loader, model_path):
 
 
 def load_test_data():
-    """Load and prepare the test dataset"""
-    print("Loading test dataset...")
-    
+    """Load and prepare the test dataset"""    
     # Load the test CSV file
     test_df = pd.read_csv(TEST_CSV_PATH)
-    print(f"Loaded {len(test_df)} test samples")
-    
-    # Display basic statistics
-    print(f"Test MOS range: {test_df['MOS'].min():.4f} to {test_df['MOS'].max():.4f}")
-    print(f"Test MOS mean: {test_df['MOS'].mean():.4f}, std: {test_df['MOS'].std():.4f}")
     
     return test_df
 

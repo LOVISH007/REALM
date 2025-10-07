@@ -19,6 +19,7 @@ try:
     from config import BASE_DIR
     from regression.core import COREModel
     from utils import evaluate_correlation_scores, validate, plot_losses, create_data_loader
+    from regression.inference import test_best_model, load_test_data
 except ImportError:
     from ..config import BASE_DIR
     from core import COREModel
@@ -50,7 +51,7 @@ def load_and_prepare_data():
     
     
     # Split training data into train and validation
-    train_df, val_df = train_test_split(train_df, test_size=0.20, random_state=42)
+    train_df, val_df = train_test_split(train_df, test_size=0.20, random_state=seed)
     
     print(f"Train samples: {len(train_df)}")
     print(f"Validation samples: {len(val_df)}")
@@ -62,7 +63,7 @@ def load_and_prepare_data():
     return train_df, val_df
 
 
-def train_model(train_loader, val_loader, num_epochs=10, learning_rate=0.0001):
+def train_model(train_loader, val_loader, test_loader, num_epochs=10, learning_rate=0.0001):
     """Train the MOS prediction model"""
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -79,7 +80,7 @@ def train_model(train_loader, val_loader, num_epochs=10, learning_rate=0.0001):
     best_pearson_corr = 0.0
     best_spearman_corr = 0.0
     
-    print("Starting training...")
+    print("Starting training... ")
     print("-" * 50)
     
     for epoch in range(1, num_epochs + 1):
@@ -115,12 +116,11 @@ def train_model(train_loader, val_loader, num_epochs=10, learning_rate=0.0001):
         
         # Evaluate on test set
         model.eval()
-        spearman_corr, pearson_corr = evaluate_correlation_scores(model, val_loader, device)
+        spearman_corr, pearson_corr = evaluate_correlation_scores(model, test_loader, device)
         print(f"Pearson Correlation: {pearson_corr:.4f}, Spearman Correlation: {spearman_corr:.4f}")
         
         # Save best model
         if spearman_corr > best_spearman_corr:
-            print(f"{spearman_corr > best_spearman_corr}")
             best_spearman_corr = spearman_corr
             torch.save(model.state_dict(), MODEL_SAVE_PATH)
             print(f"New best model saved with Spearman Correlation: {spearman_corr:.4f}")
@@ -159,6 +159,7 @@ def main():
     print("=" * 50)
     
     # Check if required directories exist
+    TEST_IMG_PATH = BASE_DIR / "datasets" / "test" / "images"
     required_paths = [TRAIN_IMG_PATH, TRAIN_CSV_PATH]
     for path in required_paths:
         if not os.path.exists(path):
@@ -167,30 +168,25 @@ def main():
     
     # Load and prepare data
     train_df, val_df = load_and_prepare_data()
+    test_df = load_test_data()
+    # print(val_df.head())
     
     # Create data loaders
-    train_loader = create_data_loader(train_df, TRAIN_IMG_PATH, batch_size=16)
-    val_loader = create_data_loader(val_df, TRAIN_IMG_PATH, batch_size=16)
-    
+    train_loader = create_data_loader(train_df, TRAIN_IMG_PATH, batch_size=16, split="train")
+    val_loader = create_data_loader(val_df, TRAIN_IMG_PATH, batch_size=16, split="val")
+    test_loader = create_data_loader(test_df, TEST_IMG_PATH, batch_size=16, split="test")
+
     # Train the model
     model, train_losses, val_losses, best_spearman = train_model(
-        train_loader, val_loader, num_epochs=10, learning_rate=0.0001101
+        train_loader, val_loader, test_loader, num_epochs=10, learning_rate=0.0001101
     )
     
     # Plot training curves
     plot_save_path = BASE_DIR / "regression" / "outputs" / "training_curves.png"
     plot_losses(train_losses, val_losses, save_path=plot_save_path)
     
-    # Final evaluation with best model
-    final_spearman, final_pearson = test_best_model(val_loader)
-    
-    print("\nTraining Summary:")
-    print("=" * 50)
-    print(f"Best Spearman during training: {best_spearman:.4f}")
-    print(f"Final val Spearman: {final_spearman:.4f}")
-    print(f"Final val Pearson: {final_pearson:.4f}")
-    print(f"Train samples: {len(train_df)}")
-    print(f"Validation samples: {len(val_df)}")
+    print("Training completed....")
+    print(f"Training curves saved to: {plot_save_path}")
 
 
 if __name__ == "__main__":
