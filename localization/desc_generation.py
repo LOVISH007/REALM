@@ -6,6 +6,11 @@ import pandas as pd
 import glob
 import os
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 def get_image_data_url(image_file: str, image_format: str) -> str:
     """
     Helper function to converts an image file to a data URL string.

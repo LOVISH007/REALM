@@ -7,6 +7,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 # Load CLIP model and processor
 CLIP_MODEL = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 CLIP_PROCESSOR = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")

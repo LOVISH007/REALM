@@ -50,7 +50,7 @@ fi
 # Install dependencies
 if [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
     echo "Installing dependencies from pyproject.toml..."
-    pip install -e . --quiet
+    pip install . 
     echo "Done"
     echo ""
 elif [[ -f "$PROJECT_ROOT/requirements.txt" ]]; then

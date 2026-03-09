@@ -15,6 +15,11 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 try:
     from config import BASE_DIR
     from regression.core import COREModel

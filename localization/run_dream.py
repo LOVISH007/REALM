@@ -1,5 +1,4 @@
 import os
-import sys
 import pandas as pd
 import torch
 import torch.nn.functional as F
@@ -7,11 +6,12 @@ from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 from localization.compute_heatmaps import generate_heat_map, plot_and_save_heatmap
 
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 try:
     from config import BASE_DIR
