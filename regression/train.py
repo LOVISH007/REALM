@@ -121,7 +121,7 @@ def train_model(train_loader, val_loader, test_loader, num_epochs=10, learning_r
         
         # Evaluate on test set
         model.eval()
-        spearman_corr, pearson_corr = evaluate_correlation_scores(model, test_loader, device)
+        spearman_corr, pearson_corr = evaluate_correlation_scores(model, val_loader, device)
         print(f"Pearson Correlation: {pearson_corr:.4f}, Spearman Correlation: {spearman_corr:.4f}")
         
         # Save best model
@@ -183,7 +183,7 @@ def main():
 
     # Train the model
     model, train_losses, val_losses, best_spearman = train_model(
-        train_loader, val_loader, test_loader, num_epochs=10, learning_rate=0.0001101
+        train_loader, val_loader, test_loader, num_epochs=15, learning_rate=0.00011
     )
     
     # Plot training curves
